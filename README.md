@@ -1,3 +1,5 @@
 #vue-learn-stepBystep
 
 拉了尤大的vue2.4.0下来分析源码
+
+参考：[Vue2.0源代码阅读](https://www.kancloud.cn/zmwtp/vue2/148822)，[Vue2.1.7源码学习](http://hcysun.me/2017/03/03/Vue%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/)，[快速了解 Vue2 MVVM](https://github.com/wangfupeng1988/learn-vue2-mvvm#%E5%85%B3%E4%BA%8E%E7%B2%BE%E7%AE%80%E5%90%8E%E7%9A%84%E6%BA%90%E7%A0%81)，[Vue.js 源码解析](https://github.com/answershuto/learnVue)
