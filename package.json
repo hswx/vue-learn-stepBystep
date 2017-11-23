@@ -11,6 +11,8 @@
     "types/*.d.ts"
   ],
   "scripts": {
+    "注释":"json文件不能写注释，只能这么干了",
+    "注释1":"开发命令，采用rollup打包，-w 是watch，-c 是指定config文件，build/config.js是rollup的配置文件。build/config.js 内部根据 TARGET 参数获取不同的构建配置。",
     "dev": "rollup -w -c build/config.js --environment TARGET:web-full-dev",
     "dev:cjs": "rollup -w -c build/config.js --environment TARGET:web-runtime-cjs",
     "dev:esm": "rollup -w -c build/config.js --environment TARGET:web-runtime-esm",
@@ -19,9 +21,13 @@
     "dev:compiler": "rollup -w -c build/config.js --environment TARGET:web-compiler ",
     "dev:weex": "rollup -w -c build/config.js --environment TARGET:weex-framework ",
     "dev:weex:compiler": "rollup -w -c build/config.js --environment TARGET:weex-compiler ",
+
+    "注释2":"构建命令",
     "build": "node build/build.js",
     "build:ssr": "npm run build -- vue.runtime.common.js,vue-server-renderer",
     "build:weex": "npm run build -- weex-vue-framework,weex-template-compiler",
+
+    "注释3":"测试命令",
     "test": "npm run lint && flow check && npm run test:types && npm run test:cover && npm run test:e2e -- --env phantomjs && npm run test:ssr && npm run test:weex",
     "test:unit": "karma start test/unit/karma.unit.config.js",
     "test:cover": "karma start test/unit/karma.cover.config.js",
@@ -34,10 +40,15 @@
     "flow": "flow check",
     "sauce": "karma start test/unit/karma.sauce.config.js",
     "bench:ssr": "npm run build:ssr && node benchmarks/ssr/renderToString.js && node benchmarks/ssr/renderToStream.js",
+
+    "注释4":"发布版本命令，用来做设置版本，测试，构建，打tag，提交，npm等一堆工作",
     "release": "bash build/release.sh",
     "release:weex": "bash build/release-weex.sh",
     "release:note": "node build/gen-release-note.js",
-    "commit": "git-cz"
+
+    "注释5":"这里的key原本是postinstall，用来在git中添加hooks目录，拦截git commit等操作，需要commit必须要npm run commit使用git-cz工具，这里去掉，不用那么规范，反而麻烦",
+    "//postinstall": "node build/install-hooks.js",
+    "//commit": "git-cz"
   },
   "repository": {
     "type": "git",
