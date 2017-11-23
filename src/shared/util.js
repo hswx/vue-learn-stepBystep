@@ -215,7 +215,7 @@ export function hasOwn (obj: Object | Array<*>, key: string): boolean {
  * 创建一个带版本缓存的函数
  * 实际作用其实就是用一个{}把每次函数执行的结果存起来，key是输入的值，value是相对应运行的值，
  * 闭包原理
- * 可以提升函数的执行效率
+ * 这个函数可以提升函数的执行效率
  * @param fn
  * @returns {*}
  */
@@ -285,12 +285,9 @@ export const hyphenate = cached((str: string): string => {
 
 /**
  * Simple bind, faster than native
- */
-/**
- * Simple bind, faster than native
- *
- * @param fn
- * @param ctx
+ * 简单绑定方法，比原生的快（恩，它说比原生的快，暂时还不知道有什么用）
+ * @param fn 要bind的方法
+ * @param ctx 上下文对象
  * @returns {boundFn}
  */
 export function bind (fn: Function, ctx: Object): Function {
@@ -303,12 +300,22 @@ export function bind (fn: Function, ctx: Object): Function {
       : fn.call(ctx)
   }
   // record original fn length
+  // 记录原始fn函数的长度，fn.length其实就是fn参数的个数
   boundFn._length = fn.length
   return boundFn
 }
 
 /**
  * Convert an Array-like object to a real Array.
+ * 将类数组对象转化成一个真实的数组
+ * 这里直接粗暴遍历
+ *
+ * ps：为什么不直接Array.prototype.slice.call(arg,start,end)，
+ *     或者直接用Array.from()，再用slice截取start之后的内容
+ *
+ * @param list 类数组对象
+ * @param start 转换开始的位置
+ * @returns {Array.<any>}
  */
 export function toArray (list: any, start?: number): Array<any> {
   start = start || 0
@@ -322,6 +329,14 @@ export function toArray (list: any, start?: number): Array<any> {
 
 /**
  * Mix properties into target object.
+ * 将对象上的属性扩展到到目标对象上，说白了就是浅拷贝
+ *
+ * ps：为什么不用Object.keys(obj)获取对象的key，
+ *     for...in的方法应该会拿到Object.prototype上可枚举的属性的吧
+ *
+ * @param to 目标对象
+ * @param _from 获取属性的对象
+ * @returns {Object}
  */
 export function extend (to: Object, _from: ?Object): Object {
   for (const key in _from) {
