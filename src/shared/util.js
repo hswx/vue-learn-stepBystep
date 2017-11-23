@@ -63,7 +63,7 @@ export function isObject (obj: mixed): boolean %checks {
   return obj !== null && typeof obj === 'object'
 }
 
-const _toString = Object.prototype.toString //引用Object.prototype的toString方法
+const _toString = Object.prototype.toString // 引用Object.prototype的toString方法
 
 /**
  * Strict object type check. Only returns true
@@ -152,9 +152,9 @@ export function toNumber (val: string): number | string {
  */
 export function makeMap (
   str: string,
-  expectsLowerCase?: boolean //是否忽略大小写
+  expectsLowerCase?: boolean // 是否忽略大小写
 ): (key: string) => true | void {
-  const map = Object.create(null)  //创建一个完全空的对象{}，连prototype都是空的
+  const map = Object.create(null)  // 创建一个完全空的对象{}，连prototype都是空的
   const list: Array<string> = str.split(',')
   for (let i = 0; i < list.length; i++) {
     map[list[i]] = true
@@ -197,7 +197,7 @@ export function remove (arr: Array<any>, item: any): Array<any> | void {
   }
 }
 
-const hasOwnProperty = Object.prototype.hasOwnProperty//引用Object的原型方法
+const hasOwnProperty = Object.prototype.hasOwnProperty// 引用Object的原型方法
 
 /**
  * Check whether the object has the property.
@@ -221,17 +221,17 @@ export function hasOwn (obj: Object | Array<*>, key: string): boolean {
  */
 export function cached<F: Function> (fn: F): F {
   const cache = Object.create(null)
-  //创建一个{}的cache对象，保存每次执行fn函数的值，key是fn的输入str，value是fn执行的输出
+  // 创建一个{}的cache对象，保存每次执行fn函数的值，key是fn的输入str，value是fn执行的输出
   return (function cachedFn (str: string) {
     const hit = cache[str]
-    //获取cache对象中，key为输入值str的value->hit
+    // 获取cache对象中，key为输入值str的value->hit
     return hit || (cache[str] = fn(str))
-    //如果值存在就说明该函数曾经运行过，值为hit，
-    //否则传入参数str执行函数，并设置cache中key=str，value=fn(str)
+    // 如果值存在就说明该函数曾经运行过，值为hit，
+    // 否则传入参数str执行函数，并设置cache中key=str，value=fn(str)
   }: any)
 }
 
-const camelizeRE = /-(\w)/g  //正则，获取'-'+包括下划线的任何单词字符
+const camelizeRE = /-(\w)/g  // 正则，获取'-'+包括下划线的任何单词字符
 
 /**
  * Camelize a hyphen-delimited string.
@@ -261,7 +261,7 @@ export const capitalize = cached((str: string): string => {
 })
 
 const hyphenateRE = /([^-])([A-Z])/g
-//正则表达式，第一个括号匹配除-外的任意字符，第二个括号匹配大写字符
+// 正则表达式，第一个括号匹配除-外的任意字符，第二个括号匹配大写字符
 
 /**
  * Hyphenate a camelCase string.
@@ -278,13 +278,20 @@ export const hyphenate = cached((str: string): string => {
   return str
     .replace(hyphenateRE, '$1-$2')
     .replace(hyphenateRE, '$1-$2')
-    //这里的replace用了两次，原因是出现三个或三个以上连续的大写是会出问题
-    //比如WANG经过第一次replace之后，会变成W-AN-G，再进行一次replace才行
+    // 这里的replace用了两次，原因是出现三个或三个以上连续的大写是会出问题
+    // 比如WANG经过第一次replace之后，会变成W-AN-G，再进行一次replace才行
     .toLowerCase()
 })
 
 /**
  * Simple bind, faster than native
+ */
+/**
+ * Simple bind, faster than native
+ *
+ * @param fn
+ * @param ctx
+ * @returns {boundFn}
  */
 export function bind (fn: Function, ctx: Object): Function {
   function boundFn (a) {
