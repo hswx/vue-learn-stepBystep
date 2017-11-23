@@ -14,7 +14,7 @@
 |-src 源码目录
 |  |-compiler 编译tempate模板，将template转成ast语法树再生产render函数
 |  |-core vue核心源码
-|  |-platforms 不同平台渲染时需要的独特的模块，包含了不同平台下打包的入口
+|  |-platforms 不同平台渲染时需要的独特的模块
 |  |-server 服务器渲染相关模块
 |  |-sfc 包含单文件组件(.vue文件)的解析逻辑，用于vue-template-compiler包
 |  |-shared 通用工具集
