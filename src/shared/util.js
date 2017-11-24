@@ -347,6 +347,21 @@ export function extend (to: Object, _from: ?Object): Object {
 
 /**
  * Merge an Array of Objects into a single Object.
+ * 将一个元素都是对象的数组合并到一个单独的对象上
+ * 看到一种用reduce的写法array.reduce(callbackfn,initialValue)，
+ * callbackfn 必需。function(total,currentValue,currentIndex,arr)。对于数组中的每个元素，reduce 方法都会调用 callbackfn 函数一次。
+ *                           total	必需。初始值, 或者计算结束后的返回值。
+ *                           currentValue	必需。当前元素
+ *                           currentIndex	可选。当前元素的索引
+ *                           arr	可选。当前元素所属的数组对象。
+ * initialValue 可选。传递给函数的初始值。
+ *
+ * export function toObject (arr: Array<any>): Object {
+ *   return arr.reduce((res, cur) => extend(res,cur), {})
+ * }
+ *
+ * @param arr 数组
+ * @returns {{}}
  */
 export function toObject (arr: Array<any>): Object {
   const res = {}
@@ -362,21 +377,37 @@ export function toObject (arr: Array<any>): Object {
  * Perform no operation.
  * Stubbing args to make Flow happy without leaving useless transpiled code
  * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/)
+ * 不执行操作的函数
+ * @param a
+ * @param b
+ * @param c
  */
 export function noop (a?: any, b?: any, c?: any) {}
 
 /**
  * Always return false.
+ * 总是返回false的函数
+ * @param a
+ * @param b
+ * @param c
  */
 export const no = (a?: any, b?: any, c?: any) => false
 
 /**
  * Return same value
+ * 返回输入值的函数
+ * @param _
  */
 export const identity = (_: any) => _
 
 /**
  * Generate a static keys string from compiler modules.
+ * 从编译器模块生成一个静态键字符串。
+ * 这里传入一个元素类型是ModuleOptions的数组，获取其中所有的staticKeys值，
+ * 这里的staticKeys还是个数组，通过concat合起来，
+ * 最后用join返回一个,分隔的静态键字符串
+ * @param modules 元素类型是ModuleOptions的数组
+ * @returns {string}
  */
 export function genStaticKeys (modules: Array<ModuleOptions>): string {
   return modules.reduce((keys, m) => {
@@ -387,26 +418,36 @@ export function genStaticKeys (modules: Array<ModuleOptions>): string {
 /**
  * Check if two values are loosely equal - that is,
  * if they are plain objects, do they have the same shape?
+ * 检查两个值是否松散相等，就是说如果它们是纯对象，它们是否具有相同的形状，就是说是不是长得一样
+ * 试了一下looseEqual( {a: 1 ,b: 1 }, { b: 1,a: 1 } )返回值为false
+ * 其实就是两个对象结构相同，就是同样的对象
+ * @param a
+ * @param b
+ * @returns {boolean}
  */
 export function looseEqual (a: mixed, b: mixed): boolean {
   const isObjectA = isObject(a)
   const isObjectB = isObject(b)
   if (isObjectA && isObjectB) {
     try {
-      return JSON.stringify(a) === JSON.stringify(b)
+      return JSON.stringify(a) === JSON.stringify(b) // 如果都是对象，直接转成JSON字符串对比
     } catch (e) {
       // possible circular reference
+      // 可能存在循环调用，比如 obj = { a: 1 } , obj.b = obj，转json报错TypeError: Converting circular structure to JSON
       return a === b
     }
   } else if (!isObjectA && !isObjectB) {
     return String(a) === String(b)
+    // 两个都不是对象的话就直接转string比较
+    // 这里调用a,b的toString()方法转字符串，Object类型会返回[object Object]的
   } else {
-    return false
+    return false //有一个是对象，另一个不是的话就直接false了
   }
 }
 
 /**
- *
+ * 用了looseEqual的方法，获取松散相等的对象在数组中的下标
+ * 找不到就返回-1
  * @param arr
  * @param val
  * @returns {number}
@@ -420,6 +461,10 @@ export function looseIndexOf (arr: Array<mixed>, val: mixed): number {
 
 /**
  * Ensure a function is called only once.
+ * 确保一个函数只被调用一次，
+ * 这里运用闭包原理加了一个锁，执行函数的时候called=true上锁
+ * @param fn
+ * @returns {Function}
  */
 export function once (fn: Function): Function {
   let called = false
