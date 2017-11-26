@@ -10,29 +10,32 @@ import { initLifecycle, callHook } from './lifecycle'
 import { initProvide, initInjections } from './inject'
 import { extend, mergeOptions, formatComponentName } from '../util/index'
 
-let uid = 0
+let uid = 0 // 定义一个全局的uid，用来唯一标记vm
 
 export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
+    console.log(options);
     const vm: Component = this
+    console.log(vm);
     // a uid
     vm._uid = uid++
 
     let startTag, endTag
     /* istanbul ignore if */
-    if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+    if (process.env.NODE_ENV !== 'production' && config.performance && mark) { // 用来测试性能的
       startTag = `vue-perf-init:${vm._uid}`
       endTag = `vue-perf-end:${vm._uid}`
       mark(startTag)
     }
 
     // a flag to avoid this being observed
-    vm._isVue = true
-    // merge options
-    if (options && options._isComponent) {
+    vm._isVue = true // 设置一个表示避免自身被观察
+    // merge options 合并options配置
+    if (options && options._isComponent) { // 如果options存在且options._isComponent
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
+      // 需要优化内部组件的实例化因为动态options的合并非常慢，而且没有一个内部组件的options配置需要特殊处理
       initInternalComponent(vm, options)
     } else {
       vm.$options = mergeOptions(
