@@ -1,13 +1,13 @@
-export const SSR_ATTR = 'data-server-rendered'
+export const SSR_ATTR = 'data-server-rendered' // 用来标记是否是服务端渲染
 
-//工具类型？
+// 资源集合
 export const ASSET_TYPES = [
   'component',
   'directive',
   'filter'
 ]
 
-//生命周期钩子
+// 生命周期钩子
 export const LIFECYCLE_HOOKS = [
   'beforeCreate', // 在实例初始化之后，数据观测 (data observer) 和 event/watcher 事件配置之前被调用。
   'created', // 在实例创建完成后被立即调用。在这一步，实例已完成以下的配置：数据观测 (data observer)，属性和方法的运算，watch/event 事件回调。然而，挂载阶段还没开始，$el 属性目前不可见。
