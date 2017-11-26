@@ -1,5 +1,7 @@
 /* @flow */
 
+// lang.js主要定义了几个工具函数
+
 export const emptyObject = Object.freeze({}) // 创建一个冻结的空对象
 
 /**
@@ -18,9 +20,9 @@ export function isReserved (str: string): boolean {
  * 定义一个属性，
  * 这里用了Object.defineProperty方法，给一个对象添加属性，并且设置该属性可写，可配置
  * 可以自己设置该属性是否可枚举
- * @param obj
- * @param key
- * @param val
+ * @param obj 对象
+ * @param key 定义的属性
+ * @param val 属性值
  * @param enumerable
  */
 export function def (obj: Object, key: string, val: any, enumerable?: boolean) {
