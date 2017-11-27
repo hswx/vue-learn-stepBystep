@@ -188,20 +188,27 @@ export function defineReactive (
  * Set a property on an object. Adds the new property and
  * triggers change notification if the property doesn't
  * already exist.
+ * 在对象上设置一个属性。如果属性尚不存在则添加新属性并触发更改通知
+ * @param target
+ * @param key
+ * @param val
+ * @returns {any}
  */
 export function set (target: Array<any> | Object, key: any, val: any): any {
+  console.log(8,target,key,val)
   if (Array.isArray(target) && isValidArrayIndex(key)) {
-    target.length = Math.max(target.length, key)
-    target.splice(key, 1, val)
+    // 如果传入的target是数组，且key是数组的下标（即为非负整数）
+    target.length = Math.max(target.length, key) // 取target.length, key最大的值
+    target.splice(key, 1, val) // 插入值val
     return val
   }
-  if (hasOwn(target, key)) {
-    target[key] = val
+  if (hasOwn(target, key)) { // 如果传入的key在target对象中有相关的属性
+    target[key] = val // 用val的值覆盖target[key]原本的值
     return val
   }
-  const ob = (target: any).__ob__
-  if (target._isVue || (ob && ob.vmCount)) {
-    process.env.NODE_ENV !== 'production' && warn(
+  const ob = (target: any).__ob__ // 获取target的Observer实例
+  if (target._isVue || (ob && ob.vmCount)) { // 如果target._isVue || (ob && ob.vmCount)
+    process.env.NODE_ENV !== 'production' && warn( // 非生产环境，不管
       'Avoid adding reactive properties to a Vue instance or its root $data ' +
       'at runtime - declare it upfront in the data option.'
     )

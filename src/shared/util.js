@@ -93,7 +93,7 @@ export function isRegExp (v: any): boolean {
 
 /**
  * Check if val is a valid array index.
- * 判断val值是否是一个有效的数组索引，所以需要的应该是一个正整数
+ * 判断val值是否是一个有效的数组索引，所以需要的应该是一个非负整数
  * 这里先把数值转化成浮点数n
  * n>=0判断n是不是负数，可以去除负数和NaN的情况
  * Math.foor(n)===n判断n是不是浮点数(小数)，可以去除浮点数的情况
