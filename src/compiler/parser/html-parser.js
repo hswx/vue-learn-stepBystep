@@ -13,16 +13,24 @@ import { makeMap, no } from 'shared/util'
 import { isNonPhrasingTag } from 'web/compiler/util'
 
 // Regular Expressions for parsing tags and attributes
+
+// 匹配一个或多个非空白字符，非"'<>/=字符，并捕获匹配到的内容，主要用于匹配属性名
 const singleAttrIdentifier = /([^\s"'<>/=]+)/
+
+// 匹配一个=，但不捕获。
 const singleAttrAssign = /(?:=)/
+
+// 匹配属性值
 const singleAttrValues = [
-  // attr value double quotes
+  // attr value double quotes 捕获双引号括起来的非"内容
   /"([^"]*)"+/.source,
-  // attr value, single quotes
+  // attr value, single quotes 捕获单引号括起来的非'内容
   /'([^']*)'+/.source,
-  // attr value, no quotes
+  // attr value, no quotes 捕获多个非空白字符或非"'=<>``字符的内容
   /([^\s"'=<>`]+)/.source
 ]
+
+// 把前三个整合起来，用于匹配一个完整的属性，并且允许属性名、等号、属性值之前可以有多个空白字符
 const attribute = new RegExp(
   '^\\s*' + singleAttrIdentifier.source +
   '(?:\\s*(' + singleAttrAssign.source + ')' +
@@ -31,13 +39,29 @@ const attribute = new RegExp(
 
 // could use https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-QName
 // but for Vue templates we can enforce a simple charset
+// 这一组匹配起始标签的标签名
+// 匹配的是以a-zA-Z_开头，然后是0或多个a-zA-Z_、-或
 const ncname = '[a-zA-Z_][\\w\\-\\.]*'
+
+// 匹配ncname开头，紧跟着一个冒号，然后又跟着一个ncname，捕获整体匹配的内容
 const qnameCapture = '((?:' + ncname + '\\:)?' + ncname + ')'
+
+// 匹配起始标签，我们的标签有字母、下划线、中划线或点组成，因为可能有命名空间，所以有了qnameCapture
 const startTagOpen = new RegExp('^<' + qnameCapture)
+
+// 匹配起始标签的结束部分，这里做了单标签的区分，单标签匹配的第二个元素是/
 const startTagClose = /^\s*(\/?)>/
+
+// 匹配双标签的结束标签。以<开始，然后是/，然后是标签名qnameCapture，接着是0或多个非>，最后是>。其中捕获是qnameCapture进行的
 const endTag = new RegExp('^<\\/' + qnameCapture + '[^>]*>')
+
+// 匹配文档类型
 const doctype = /^<!DOCTYPE [^>]+>/i
+
+// 匹配html注释的起始部分
 const comment = /^<!--/
+
+// 匹配<![CDATA等内容
 const conditionalComment = /^<!\[/
 
 let IS_REGEX_CAPTURING_BROKEN = false
@@ -46,9 +70,11 @@ let IS_REGEX_CAPTURING_BROKEN = false
 })
 
 // Special Elements (can contain anything)
+// 可以包含任何元素的特殊元素标签，这里做了一个map方法
 export const isPlainTextElement = makeMap('script,style,textarea', true)
 const reCache = {}
 
+// 转义表
 const decodingMap = {
   '&lt;': '<',
   '&gt;': '>',
