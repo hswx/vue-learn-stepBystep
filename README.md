@@ -10,6 +10,13 @@
 	|-dist 构建之后得到的输出目录
 	|-example 一些vue功能的使用示例
 	|-flow 声明了一些静态类型，用了脸书的开源项目[Flow](https://flowtype.org/)
+	|  |- compiler.js 编译相关的数据结构
+	|  |- component.js 组件数据结构
+	|  |- global-api.js 全局API结构
+	|  |- modules.js 第三方库相关的结构
+	|  |- options.js 选项相关结构
+	|  |- ssr.js 服务端渲染相关结构
+	|  |- vnode.js 虚拟节点相关结构
 	|-packages 构建后server side render和weex版本的输出目录，暂时没看出来干啥用的
 	|-src 源码目录
 	|  |-compiler 编译tempate模板，将template转成ast语法树再生产render函数
