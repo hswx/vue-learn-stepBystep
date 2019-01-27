@@ -9,6 +9,7 @@ import { query } from './util/index'
 import { shouldDecodeNewlines } from './util/compat'
 import { compileToFunctions } from './compiler/index'
 
+// 定义一个带缓存的函数，输入一个id，输出这个id所对应的html元素的html文本
 const idToTemplate = cached(id => {
   const el = query(id)
   return el && el.innerHTML
