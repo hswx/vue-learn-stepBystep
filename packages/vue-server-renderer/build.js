@@ -10,24 +10,49 @@ var he = _interopDefault(require('he'));
 
 // these helpers produces better vm code in JS engines due to their
 // explicitness and function inlining
+// 这些助手通过更明确的内联函数提供给js引擎更好的vm代码
+
+/**
+ * 判断是否是undefined或者null
+ * @param v 要判断的字段，any表示跳过类型检查
+ * @returns {boolean}
+ */
 function isUndef (v) {
   return v === undefined || v === null
 }
 
+/**
+ * 判断是否不是undefined或者不是null
+ * @param v 要判断的字段，any表示跳过类型检查
+ * @returns {boolean}
+ */
 function isDef (v) {
   return v !== undefined && v !== null
 }
 
+/**
+ * 判断是否是true
+ * @param v 要判断的字段，any表示跳过类型检查
+ * @returns {boolean}
+ */
 function isTrue (v) {
   return v === true
 }
 
+/**
+ * 判断是否是false
+ * @param v 要判断的字段，any表示跳过类型检查
+ * @returns {boolean}
+ */
 function isFalse (v) {
   return v === false
 }
 
 /**
  * Check if value is primitive
+ * 判断是否是基本类型，这里的基本类型包括string和number
+ * @param v 要判断的字段，any表示跳过类型检查
+ * @returns {boolean}
  */
 function isPrimitive (value) {
   return typeof value === 'string' || typeof value === 'number'
@@ -37,25 +62,53 @@ function isPrimitive (value) {
  * Quick object check - this is primarily used to tell
  * Objects from primitive values when we know the value
  * is a JSON-compliant type.
+ * 快速对象检查 - 主要用于在我们从原始值中知道该值是符合JSON的类型时通知对象，就是检查一个值是不是对象
+ * 只要typeof为object的对象，都会返回true，比如{a:1}，[1,2,3]，new Boolean(1)等内置对象
+ * @param obj 要判断的字段，mixed表示未知类型
+ * @returns {boolean}
  */
 function isObject (obj) {
   return obj !== null && typeof obj === 'object'
 }
 
-var _toString = Object.prototype.toString;
+var _toString = Object.prototype.toString; // 引用Object.prototype的toString方法
 
 /**
  * Strict object type check. Only returns true
  * for plain JavaScript objects.
+ * 严格对象检查。只返回明确的JavaScript对象
+ * 相比于isObject方法，这里会检查对象的toString方法，只有{a:1}这种object的对象才会返回true
+ * Object.prototype.toString.call(new Date())      [object Date]
+ * Object.prototype.toString.call([1,2,3])         [object Array]
+ * Object.prototype.toString.call(new Boolean(1))  [object Boolean]
+ * qs:为什么不直接用对象的toString()方法？
+ * an:Array、Boolean等构造函数的都在原型中重写了toString方法，不会输出[***]
+ * @param obj 要判断的字段，any表示跳过类型检查
+ * @returns {boolean}
  */
 function isPlainObject (obj) {
   return _toString.call(obj) === '[object Object]'
 }
 
+/**
+ * 判断输入值是否是正则表达式对象
+ * @param v 要判断的字段，any表示跳过类型检查
+ * @returns {boolean}
+ */
 
 
 /**
  * Check if val is a valid array index.
+ * 判断val值是否是一个有效的数组索引，所以需要的应该是一个非负整数
+ * 这里先把数值转化成浮点数n
+ * n>=0判断n是不是负数，可以去除负数和NaN的情况
+ * Math.foor(n)===n判断n是不是浮点数(小数)，可以去除浮点数的情况
+ * isFinite判断n是不是无穷数，可以去除无穷数的情况
+ *
+ * ps:为什么不用正则？或者es6的Number的方法之类的
+ *
+ * @param v 要判断的字段，any表示跳过类型检查
+ * @returns {boolean}
  */
 function isValidArrayIndex (val) {
   var n = parseFloat(val);
@@ -64,24 +117,41 @@ function isValidArrayIndex (val) {
 
 /**
  * Convert a value to a string that is actually rendered.
+ * 将值转换成实际呈现的字符串
+ * 这里接受任何类型的参数，如果这个值==null则返回空字符串，
+ * 如果这个值的typeof值是object则转成缩进2个空格的字符串，基本就是原样转成json格式输出
+ * 否则就用String来返回原字符串
+ * 这里的作用应该主要是当假值null，undefined等返回空字符串用的
+ * @param val 要判断的字段，any表示跳过类型检查
+ * @returns {string}
  */
 
 
 /**
  * Convert a input value to a number for persistence.
  * If the conversion fails, return original string.
+ * 将string类型的输入值转换成浮点型的数字，如果转换失败就返回原输入的string
+ * 通过parseFloat转换string类型的输入值，判断是否是NaN来分析原值是否能转换
+ * @param val string类型的输入
+ * @returns {number|string}
  */
 
 
 /**
  * Make a map and return a function for checking if a key
  * is in that map.
+ * 制作一个map并且返回一个方法来检查是否某个key在那个map里
+ * 可以参考下面的isBuiltInTag和isReservedAttribute用法，
+ * 主要是把一串带逗号的字符串转化成一个list，返回一个方法，查询输入的字符串是否在这个list里
+ * @param str
+ * @param expectsLowerCase
+ * @returns {function(*): *}
  */
 function makeMap (
   str,
-  expectsLowerCase
+  expectsLowerCase // 是否忽略大小写
 ) {
-  var map = Object.create(null);
+  var map = Object.create(null);  // 创建一个完全空的对象{}，连prototype都是空的
   var list = str.split(',');
   for (var i = 0; i < list.length; i++) {
     map[list[i]] = true;
@@ -93,16 +163,27 @@ function makeMap (
 
 /**
  * Check if a tag is a built-in tag.
+ * 输出一个方法检索是否该标签一个内置标签，true表示忽略大小写，都会转成小写
+ * @type {function(*): *}
  */
 var isBuiltInTag = makeMap('slot,component', true);
 
 /**
  * Check if a attribute is a reserved attribute.
+ * 输出一个方法判断是否该属性是一个保留属性，不忽略大小写
+ * @type {function(*): *}
  */
 var isReservedAttribute = makeMap('key,ref,slot,is');
 
 /**
  * Remove an item from an array
+ * 从数组中删除一个item
+ * 这里通过indexOf来查找到item所在的位置，
+ * 然后通过splice删除该元素并返回删除后的数组，
+ * 如果数组长度<=0或者没找到该元素，就不返回值
+ * @param arr
+ * @param item
+ * @returns {Array.<any>}
  */
 function remove (arr, item) {
   if (arr.length) {
@@ -113,63 +194,125 @@ function remove (arr, item) {
   }
 }
 
+var hasOwnProperty = Object.prototype.hasOwnProperty;// 引用Object的原型方法
+
 /**
  * Check whether the object has the property.
+ * 检查对象是否有某个属性
+ * @param obj
+ * @param key
+ * @returns {*}
  */
-var hasOwnProperty = Object.prototype.hasOwnProperty;
 function hasOwn (obj, key) {
   return hasOwnProperty.call(obj, key)
 }
 
 /**
  * Create a cached version of a pure function.
+ * 创建一个带版本缓存的函数
+ * 实际作用其实就是用一个{}把每次函数执行的结果存起来，key是输入的值，value是相对应运行的值，
+ * 闭包原理
+ * 这个函数可以提升函数的执行效率
+ * @param fn
+ * @returns {*}
  */
 function cached (fn) {
   var cache = Object.create(null);
+  // 创建一个{}的cache对象，保存每次执行fn函数的值，key是fn的输入str，value是fn执行的输出
   return (function cachedFn (str) {
     var hit = cache[str];
+    // 获取cache对象中，key为输入值str的value->hit
     return hit || (cache[str] = fn(str))
+    // 如果值存在就说明该函数曾经运行过，值为hit，
+    // 否则传入参数str执行函数，并设置cache中key=str，value=fn(str)
   })
 }
 
+var camelizeRE = /-(\w)/g;  // 正则，获取'-'+包括下划线的任何单词字符
+
 /**
  * Camelize a hyphen-delimited string.
+ * 将一个连字符形式的字符串改成驼峰命名形式的字符串
+ * 通过正则将字符串中符合/-(\w)/规则的所有字符串都变成大写并去除-
+ * 这里用到了replace一个很不常见的用法，replace(reg/string,string/function)
+ * replace方法第二个参数可以是函数，
+ * 这个函数可以接受4个参数function(a,b,c,d)，返回值为当前匹配到的字符串替换之后的字符串
+ * 第一个参数：正则所匹配到的字符；
+ * 第二个参数：捕获正则中括号所匹配到的字符，如果没有括号，则该函数接受3个参数，这个参数不存在
+ * 第三个参数：正则匹配到的每段字符的第一个字符的索引；
+ * 第四个参数：用于匹配的字符串主体；
+ * 当然，replace还有特殊替换字符的方法，下面的hyphenateRE就用到了这种方法
+ * @type {F}
  */
-var camelizeRE = /-(\w)/g;
 var camelize = cached(function (str) {
   return str.replace(camelizeRE, function (_, c) { return c ? c.toUpperCase() : ''; })
 });
 
 /**
  * Capitalize a string.
+ * 将一个字符串的首字母大写
+ * @type {F}
  */
 var capitalize = cached(function (str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 });
 
+var hyphenateRE = /([^-])([A-Z])/g;
+// 正则表达式，第一个括号匹配除-外的任意字符，第二个括号匹配大写字符
+
 /**
  * Hyphenate a camelCase string.
+ * 将一个驼峰命名形式的字符串改成连字符形式的字符串
+ * 这里还是用replace方法来做的，用的更加生僻了，replace的第二个参数可以用特殊替换字符：
+ * $& 与正则相匹配的字符串
+ * $` 匹配字符串左边的字符
+ * $’ 匹配字符串右边的字符
+ * $1,$2,$,3,…,$n 匹配结果中对应的分组匹配结果
+ * 这里用这种方法加上了'-'，并把字符串变成小写
+ * @type {F}
  */
-var hyphenateRE = /([^-])([A-Z])/g;
 var hyphenate = cached(function (str) {
   return str
     .replace(hyphenateRE, '$1-$2')
     .replace(hyphenateRE, '$1-$2')
+    // 这里的replace用了两次，原因是出现三个或三个以上连续的大写是会出问题
+    // 比如WANG经过第一次replace之后，会变成W-AN-G，再进行一次replace才行
     .toLowerCase()
 });
 
 /**
  * Simple bind, faster than native
+ * 简单绑定方法，比原生的快（恩，它说比原生的快，暂时还不知道有什么用）
+ * @param fn 要bind的方法
+ * @param ctx 上下文对象
+ * @returns {boundFn}
  */
 
 
 /**
  * Convert an Array-like object to a real Array.
+ * 将类数组对象转化成一个真实的数组
+ * 这里直接粗暴遍历
+ *
+ * ps：为什么不直接Array.prototype.slice.call(arg,start,end)，
+ *     或者直接用Array.from()，再用slice截取start之后的内容
+ *
+ * @param list 类数组对象
+ * @param start 转换开始的位置
+ * @returns {Array.<any>}
  */
 
 
 /**
  * Mix properties into target object.
+ * 将对象上的属性扩展到到目标对象上，说白了就是浅拷贝
+ *
+ * ps：为什么不用Object.keys(obj)获取对象的key，
+ *     for...in的方法应该会拿到Object.prototype上可枚举的属性的吧
+ *
+ * @param to 目标对象
+ * @param _from 获取属性的对象
+ * @returns {Object}
  */
 function extend (to, _from) {
   for (var key in _from) {
@@ -180,6 +323,21 @@ function extend (to, _from) {
 
 /**
  * Merge an Array of Objects into a single Object.
+ * 将一个元素都是对象的数组合并到一个单独的对象上
+ * 看到一种用reduce的写法array.reduce(callbackfn,initialValue)，
+ * callbackfn 必需。function(total,currentValue,currentIndex,arr)。对于数组中的每个元素，reduce 方法都会调用 callbackfn 函数一次。
+ *                           total	必需。初始值, 或者计算结束后的返回值。
+ *                           currentValue	必需。当前元素
+ *                           currentIndex	可选。当前元素的索引
+ *                           arr	可选。当前元素所属的数组对象。
+ * initialValue 可选。传递给函数的初始值。
+ *
+ * export function toObject (arr: Array<any>): Object {
+ *   return arr.reduce((res, cur) => extend(res,cur), {})
+ * }
+ *
+ * @param arr 数组
+ * @returns {{}}
  */
 function toObject (arr) {
   var res = {};
@@ -195,21 +353,37 @@ function toObject (arr) {
  * Perform no operation.
  * Stubbing args to make Flow happy without leaving useless transpiled code
  * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/)
+ * 不执行操作的函数
+ * @param a
+ * @param b
+ * @param c
  */
 function noop (a, b, c) {}
 
 /**
  * Always return false.
+ * 总是返回false的函数
+ * @param a
+ * @param b
+ * @param c
  */
 var no = function (a, b, c) { return false; };
 
 /**
  * Return same value
+ * 返回输入值的函数
+ * @param _
  */
 var identity = function (_) { return _; };
 
 /**
  * Generate a static keys string from compiler modules.
+ * 从编译器模块生成一个静态键字符串。
+ * 这里传入一个元素类型是ModuleOptions的数组，获取其中所有的staticKeys值，
+ * 这里的staticKeys还是个数组，通过concat合起来，
+ * 最后用join返回一个,分隔的静态键字符串
+ * @param modules 元素类型是ModuleOptions的数组
+ * @returns {string}
  */
 function genStaticKeys (modules) {
   return modules.reduce(function (keys, m) {
@@ -220,13 +394,30 @@ function genStaticKeys (modules) {
 /**
  * Check if two values are loosely equal - that is,
  * if they are plain objects, do they have the same shape?
+ * 检查两个值是否松散相等，就是说如果它们是纯对象，它们是否具有相同的形状，就是说是不是长得一样
+ * 试了一下looseEqual( {a: 1 ,b: 1 }, { b: 1,a: 1 } )返回值为false
+ * 其实就是两个对象结构相同，就是同样的对象
+ * @param a
+ * @param b
+ * @returns {boolean}
  */
 
 
+/**
+ * 用了looseEqual的方法，获取松散相等的对象在数组中的下标
+ * 找不到就返回-1
+ * @param arr
+ * @param val
+ * @returns {number}
+ */
 
 
 /**
  * Ensure a function is called only once.
+ * 确保一个函数只被调用一次，
+ * 这里运用闭包原理加了一个锁，执行函数的时候called=true上锁
+ * @param fn
+ * @returns {Function}
  */
 function once (fn) {
   var called = false;
@@ -478,10 +669,15 @@ function setText (node, text, raw) {
 
 /*  */
 
-var emptyObject = Object.freeze({});
+// lang.js主要定义了几个工具函数
+
+var emptyObject = Object.freeze({}); // 创建一个冻结的空对象
 
 /**
  * Check if a string starts with $ or _
+ * 检查是否一个字符串用'$'或者'_'开头
+ * @param str
+ * @returns {boolean}
  */
 function isReserved (str) {
   var c = (str + '').charCodeAt(0);
@@ -490,6 +686,13 @@ function isReserved (str) {
 
 /**
  * Define a property.
+ * 定义一个属性，
+ * 这里用了Object.defineProperty方法，给一个对象添加属性，并且设置该属性可写，可配置
+ * 可以自己设置该属性是否可枚举
+ * @param obj 对象
+ * @param key 定义的属性
+ * @param val 属性值
+ * @param enumerable
  */
 function def (obj, key, val, enumerable) {
   Object.defineProperty(obj, key, {
@@ -500,16 +703,24 @@ function def (obj, key, val, enumerable) {
   });
 }
 
+var bailRE = /[^\w.$]/;
+// 正则，匹配除了（包括下划线的任何单词字符--类似但不等价于“[A-Za-z0-9_]”，这里的"单词"字符使用Unicode字符集，字符.和字符$）之外的字符
+
 /**
  * Parse simple path.
+ * 解析简单的路径
+ * @type {RegExp}
+ * @param path
+ * @returns {Function}
  */
-var bailRE = /[^\w.$]/;
 function parsePath (path) {
   if (bailRE.test(path)) {
     return
   }
   var segments = path.split('.');
   return function (obj) {
+    // 返回一个方法，该方法接收一个obj对象，返回path路径所对应的值
+    // 比如obj={ a1: { b1: 0 }, a2: 1}，path='a2.a1'返回undefined，path='a1.b1'返回0
     for (var i = 0; i < segments.length; i++) {
       if (!obj) { return }
       obj = obj[segments[i]];
@@ -518,111 +729,139 @@ function parsePath (path) {
   }
 }
 
-var SSR_ATTR = 'data-server-rendered';
+var SSR_ATTR = 'data-server-rendered'; // 用来标记是否是服务端渲染
 
+// 资源集合
 var ASSET_TYPES = [
   'component',
   'directive',
   'filter'
 ];
 
+// 生命周期钩子
 var LIFECYCLE_HOOKS = [
-  'beforeCreate',
-  'created',
-  'beforeMount',
-  'mounted',
-  'beforeUpdate',
-  'updated',
-  'beforeDestroy',
-  'destroyed',
-  'activated',
-  'deactivated'
+  'beforeCreate', // 在实例初始化之后，数据观测 (data observer) 和 event/watcher 事件配置之前被调用。
+  'created', // 在实例创建完成后被立即调用。在这一步，实例已完成以下的配置：数据观测 (data observer)，属性和方法的运算，watch/event 事件回调。然而，挂载阶段还没开始，$el 属性目前不可见。
+  'beforeMount', // 在挂载开始之前被调用：相关的 render 函数首次被调用。
+  'mounted', // 在挂载开始之前被调用：相关的 render 函数首次被调用。
+  'beforeUpdate', // 数据更新时调用，发生在虚拟 DOM 重新渲染和打补丁之前。
+  'updated', // 由于数据更改导致的虚拟 DOM 重新渲染和打补丁，在这之后会调用该钩子。
+  'beforeDestroy', // 实例销毁之前调用。在这一步，实例仍然完全可用。
+  'destroyed', // Vue 实例销毁后调用。调用后，Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。
+  'activated', // keep-alive 组件激活时调用。
+  'deactivated' // keep-alive 组件停用时调用。
 ];
 
 /*  */
 
+/**
+ * 该js文件定义一个用户的全局配置类型，生成一个默认的配置对象出去
+ * 相关配置属性的用途可以在api文档中找到https://cn.vuejs.org/v2/api/#全局配置
+ */
+
+
 var config = ({
   /**
    * Option merge strategies (used in core/util/options)
+   * 自定义合并策略的选项。用于core/util/options中
    */
   optionMergeStrategies: Object.create(null),
 
   /**
    * Whether to suppress warnings.
+   * 是否屏蔽日志警告
    */
   silent: false,
 
   /**
    * Show production mode tip message on boot?
+   * 启动时是否显示生产模式的提示信息
    */
   productionTip: process.env.NODE_ENV !== 'production',
 
   /**
    * Whether to enable devtools
+   * 是否使用调试工具
    */
   devtools: process.env.NODE_ENV !== 'production',
 
   /**
    * Whether to record perf
+   * 是否记录性能信息
    */
   performance: false,
 
   /**
    * Error handler for watcher errors
+   * 监测到错误的处理程序
    */
   errorHandler: null,
 
   /**
    * Warn handler for watcher warns
+   * 监测到警告的处理程序
    */
   warnHandler: null,
 
   /**
    * Ignore certain custom elements
+   * 忽略某些自定义元素
    */
   ignoredElements: [],
 
   /**
    * Custom user key aliases for v-on
+   * v-on的用户自定义键名
    */
   keyCodes: Object.create(null),
 
   /**
    * Check if a tag is reserved so that it cannot be registered as a
    * component. This is platform-dependent and may be overwritten.
+   * 检查一个标签是否是保留标签来判断它能否注册成一个组件。
+   * 这是一个平台相关的方法，可以被重写。
    */
   isReservedTag: no,
 
   /**
    * Check if an attribute is reserved so that it cannot be used as a component
    * prop. This is platform-dependent and may be overwritten.
+   * 检查一个属性是否是保留属性来判断它能否注册成一个组件的属性。
+   * 这是一个平台相关的方法，可以被重写。
    */
   isReservedAttr: no,
 
   /**
    * Check if a tag is an unknown element.
    * Platform-dependent.
+   * 检查一个标签是否是位置元素
+   * 平台相关
    */
   isUnknownElement: no,
 
   /**
    * Get the namespace of an element
+   * 获取元素的命名空间，即元素的类型
    */
   getTagNamespace: noop,
 
   /**
    * Parse the real tag name for the specific platform.
+   * 解析特殊平台中标签真实的标签名
    */
   parsePlatformTagName: identity,
 
   /**
    * Check if an attribute must be bound using property, e.g. value
    * Platform-dependent.
+   * 检查某个属性是否必须被用属性绑定，比如value等
+   * 平台相关
    */
   mustUseProp: no,
 
   /**
    * Exposed for legacy reasons
+   * 由于遗留原因暴露的生命周期钩子列表
    */
   _lifecycleHooks: LIFECYCLE_HOOKS
 });
@@ -634,12 +873,19 @@ var tip = noop;
 var formatComponentName = (null); // work around flow check
 
 if (process.env.NODE_ENV !== 'production') {
-  var hasConsole = typeof console !== 'undefined';
-  var classifyRE = /(?:^|[-_])(\w)/g;
+  // 当前环境不是生产环境时执行以下函数，返回定义好的warn、tip和formatComponentName函数，否则就返回无效的函数
+  var hasConsole = typeof console !== 'undefined'; // 检查console对象是否存在
+  var classifyRE = /(?:^|[-_])(\w)/g; // 正则，表示(匹配但不获取开头或匹配字符'-'或_)(匹配并获取包括下划线的任何单词字符)
   var classify = function (str) { return str
     .replace(classifyRE, function (c) { return c.toUpperCase(); })
-    .replace(/[-_]/g, ''); };
+    // 经验证abc-abc -> Abc-Abc，abc_abc -> Abc_Abc
+    .replace(/[-_]/g, ''); }; // 去掉字符'-'和'_'
 
+  /**
+   * 打印警告信息
+   * @param msg
+   * @param vm
+   */
   warn = function (msg, vm) {
     var trace = vm ? generateComponentTrace(vm) : '';
 
@@ -650,6 +896,11 @@ if (process.env.NODE_ENV !== 'production') {
     }
   };
 
+  /**
+   * 打印提示信息
+   * @param msg
+   * @param vm
+   */
   tip = function (msg, vm) {
     if (hasConsole && (!config.silent)) {
       console.warn("[Vue tip]: " + msg + (
@@ -658,30 +909,46 @@ if (process.env.NODE_ENV !== 'production') {
     }
   };
 
+  /**
+   * 格式化组件的名字，这里根据传入的vm对象和includeFile
+   * 返回所在标签名和所在组件，给报错信息之类的使用
+   * @param vm
+   * @param includeFile
+   * @returns {*}
+   */
   formatComponentName = function (vm, includeFile) {
-    if (vm.$root === vm) {
+    if (vm.$root === vm) { // 如果vm的根元素就是vm，返回<Root>标签
       return '<Root>'
     }
-    var name = typeof vm === 'string'
+    var name = typeof vm === 'string' // 如果vm为string类型，则name为vm值，否则继续判断
       ? vm
-      : typeof vm === 'function' && vm.options
+      : typeof vm === 'function' && vm.options // 如果vm的类型为function且vm.options值为true，则返回vm.options.name，否则继续判断
         ? vm.options.name
-        : vm._isVue
+        : vm._isVue // 如果vm.isVue值为true，则返回vm.$options.name，如果vm.$options.name不存在则返回vm.$options._componentTag
           ? vm.$options.name || vm.$options._componentTag
-          : vm.name;
+          : vm.name; // 如果vm.isVue值为false，则返回vm.name
 
-    var file = vm._isVue && vm.$options.__file;
-    if (!name && file) {
+    var file = vm._isVue && vm.$options.__file; // 定义一个file值，vm._isVue为真值时file=vm.$options.__file，否则file为vm._isVue的值
+    if (!name && file) { // 如果name不存在而file存在时
       var match = file.match(/([^/\\]+)\.vue$/);
-      name = match && match[1];
+      // 正则匹配(除/和\\之外的字符).vue，下方的match[1]拿到的就是匹配后括号内的结果
+      // 比如abc.vue -> abc，a/bc -> bc，a\\bc -> bc
+      name = match && match[1]; // 如果match存在且match[1]有值，name=match[1]
     }
 
     return (
-      (name ? ("<" + (classify(name)) + ">") : "<Anonymous>") +
-      (file && includeFile !== false ? (" at " + file) : '')
+      (name ? ("<" + (classify(name)) + ">") : "<Anonymous>") +  // name有值的话就返回格式中转换后名为name的标签，否则返回<Anonymous>标签
+      (file && includeFile !== false ? (" at " + file) : '') // file存在且includeFile为真值时打印at 某个文件
     )
   };
 
+  /**
+   * 通过位运算重复n次字符串str后输出，
+   * 即输入(abc,4)，输出abcacbacbacb
+   * @param str
+   * @param n
+   * @returns {string}
+   */
   var repeat = function (str, n) {
     var res = '';
     while (n) {
@@ -692,8 +959,13 @@ if (process.env.NODE_ENV !== 'production') {
     return res
   };
 
+  /**
+   *
+   * @param vm 传入vm对象
+   * @returns {string}
+   */
   var generateComponentTrace = function (vm) {
-    if (vm._isVue && vm.$parent) {
+    if (vm._isVue && vm.$parent) { // 如果vm._isVue且vm.$parent为真值
       var tree = [];
       var currentRecursiveSequence = 0;
       while (vm) {
@@ -718,6 +990,7 @@ if (process.env.NODE_ENV !== 'production') {
         .join('\n')
     } else {
       return ("\n\n(found in " + (formatComponentName(vm)) + ")")
+      // 如果vm._isVue且vm.$parent为假值，将vm对象放入函数formatComponentName中，返回相关信息
     }
   };
 }
@@ -1176,20 +1449,27 @@ function defineReactive$$1 (
  * Set a property on an object. Adds the new property and
  * triggers change notification if the property doesn't
  * already exist.
+ * 在对象上设置一个属性。如果属性尚不存在则添加新属性并触发更改通知
+ * @param target
+ * @param key
+ * @param val
+ * @returns {any}
  */
 function set (target, key, val) {
+  console.log(8,target,key,val);
   if (Array.isArray(target) && isValidArrayIndex(key)) {
-    target.length = Math.max(target.length, key);
-    target.splice(key, 1, val);
+    // 如果传入的target是数组，且key是数组的下标（即为非负整数）
+    target.length = Math.max(target.length, key); // 取target.length, key最大的值
+    target.splice(key, 1, val); // 插入值val
     return val
   }
-  if (hasOwn(target, key)) {
-    target[key] = val;
+  if (hasOwn(target, key)) { // 如果传入的key在target对象中有相关的属性
+    target[key] = val; // 用val的值覆盖target[key]原本的值
     return val
   }
-  var ob = (target).__ob__;
-  if (target._isVue || (ob && ob.vmCount)) {
-    process.env.NODE_ENV !== 'production' && warn(
+  var ob = (target).__ob__; // 获取target的Observer实例
+  if (target._isVue || (ob && ob.vmCount)) { // 如果target._isVue || (ob && ob.vmCount)
+    process.env.NODE_ENV !== 'production' && warn( // 非生产环境，不管
       'Avoid adding reactive properties to a Vue instance or its root $data ' +
       'at runtime - declare it upfront in the data option.'
     );
@@ -1229,11 +1509,14 @@ function dependArray (value) {
  * Option overwriting strategies are functions that handle
  * how to merge a parent option value and a child option
  * value into the final value.
+ * 定义一个对象，对象中包含一些函数，这些函数决定了父选项与子选项合成最终值时采用的策略
+ * 此时 strats 是一个空对象，因为 config中optionMergeStrategies = Object.create(null)
  */
 var strats = config.optionMergeStrategies;
 
 /**
  * Options with restrictions
+ * 非生产环境，暂时不管
  */
 if (process.env.NODE_ENV !== 'production') {
   strats.el = strats.propsData = function (parent, child, vm, key) {
@@ -1249,18 +1532,30 @@ if (process.env.NODE_ENV !== 'production') {
 
 /**
  * Helper that recursively merges two data objects together.
+ * 递归地将两个数据对象合并到一起的方法
+ * 1.如果from【childVal】中的某个属性to【parentVal】中也有，保留to中的，什么也不做
+ * 2.如果to中没有，将这个属性添加到to中
+ * 3.如果to和from中的某个属性值都是对象，则递归调用，进行深度合并。
+ * @param to
+ * @param from
+ * @returns {Object}
  */
 function mergeData (to, from) {
-  if (!from) { return to }
+  console.log(9,to,from);
+  if (!from) { return to } // 如果from不存在直接返回to的值
   var key, toVal, fromVal;
-  var keys = Object.keys(from);
+  var keys = Object.keys(from); // 获取from对象自身可枚举的key值
   for (var i = 0; i < keys.length; i++) {
-    key = keys[i];
-    toVal = to[key];
-    fromVal = from[key];
-    if (!hasOwn(to, key)) {
+    key = keys[i]; // 获取from中的key值
+    toVal = to[key]; // 获取to中key属性的值，应该有可能不存在吧
+    fromVal = from[key]; // 获取from中key属性的值
+    if (!hasOwn(to, key)) { // 如果to中没有这个key属性就设置to中key属性的值为from[key]
       set(to, key, fromVal);
+      // 这个方法是给to的属性key赋值
+      // 如果to有__ob__属性, 还会把新合并的这个值设置成监控模式 , 并且即刻通知更新
+      // 会调用这两个方法 defineReactive(ob.value, key, val)  ob.dep.notify()
     } else if (isPlainObject(toVal) && isPlainObject(fromVal)) {
+      // 如果toVal和fromVal都是对象,继续合并
       mergeData(toVal, fromVal);
     }
   }
@@ -1269,13 +1564,19 @@ function mergeData (to, from) {
 
 /**
  * Data
+ * 处理数据
+ * @param parentVal
+ * @param childVal
+ * @param vm
+ * @returns {*}
  */
 function mergeDataOrFn (
   parentVal,
   childVal,
   vm
 ) {
-  if (!vm) {
+  console.log(8,parentVal,childVal,vm);
+  if (!vm) { // vm目前存在，还是先不管这个情况
     // in a Vue.extend merge, both should be functions
     if (!childVal) {
       return parentVal
@@ -1294,13 +1595,13 @@ function mergeDataOrFn (
         parentVal.call(this)
       )
     }
-  } else if (parentVal || childVal) {
+  } else if (parentVal || childVal) { // 应该会走到这条分支
     return function mergedInstanceDataFn () {
-      // instance merge
-      var instanceData = typeof childVal === 'function'
+      // instance merge 实例合并
+      var instanceData = typeof childVal === 'function' // 如果childVal是方法就直接执行返回结果，否则返回原值
         ? childVal.call(vm)
         : childVal;
-      var defaultData = typeof parentVal === 'function'
+      var defaultData = typeof parentVal === 'function' // 如果parentVal是方法就直接执行返回结果，否则返回undefined
         ? parentVal.call(vm)
         : undefined;
       if (instanceData) {
@@ -1312,14 +1613,22 @@ function mergeDataOrFn (
   }
 }
 
+/**
+ * 处理config中data的内容，返回的是一个具体的合并属性的函数。
+ * @param parentVal
+ * @param childVal
+ * @param vm
+ * @returns {*}
+ */
 strats.data = function (
   parentVal,
   childVal,
   vm
 ) {
-  if (!vm) {
+  console.log(7,parentVal,childVal,vm);
+  if (!vm) { // 如果没传入vm实例，目前会传入vm，暂时不管这个情况
     if (childVal && typeof childVal !== 'function') {
-      process.env.NODE_ENV !== 'production' && warn(
+      process.env.NODE_ENV !== 'production' && warn( // 非生产环境，忽略
         'The "data" option should be a function ' +
         'that returns a per-instance value in component ' +
         'definitions.',
@@ -1331,11 +1640,14 @@ strats.data = function (
     return mergeDataOrFn.call(this, parentVal, childVal)
   }
 
-  return mergeDataOrFn(parentVal, childVal, vm)
+  return mergeDataOrFn(parentVal, childVal, vm) //传入vm实例的情况下，直接调用mergeDataOrFn方法
 };
 
 /**
  * Hooks and props are merged as arrays.
+ * 只有父时返回父，只有子时返回数组类型的子。
+ * 父、子都存在时，将子添加在父的后面返回组合而成的数组。
+ * 这也是父子均有钩子函数的时候，先执行父的后执行子的的原因
  */
 function mergeHook (
   parentVal,
@@ -1350,6 +1662,9 @@ function mergeHook (
     : parentVal
 }
 
+/**
+ * 得到生命周期钩子相对应的策略
+ */
 LIFECYCLE_HOOKS.forEach(function (hook) {
   strats[hook] = mergeHook;
 });
@@ -1368,6 +1683,10 @@ function mergeAssets (parentVal, childVal) {
     : res
 }
 
+/**
+ *
+ * 得到directives、components、filter相对应的策略
+ */
 ASSET_TYPES.forEach(function (type) {
   strats[type + 's'] = mergeAssets;
 });
@@ -1418,6 +1737,11 @@ strats.provide = mergeDataOrFn;
 
 /**
  * Default strategy.
+ * 默认策略
+ * 这个函数表示当子选项存在时，返回子选项，否则返回父选项
+ * @param parentVal
+ * @param childVal
+ * @returns {any}
  */
 var defaultStrat = function (parentVal, childVal) {
   return childVal === undefined
@@ -1427,6 +1751,7 @@ var defaultStrat = function (parentVal, childVal) {
 
 /**
  * Validate component names
+ * 验证组件名
  */
 function checkComponents (options) {
   for (var key in options.components) {
@@ -1443,6 +1768,7 @@ function checkComponents (options) {
 /**
  * Ensure all props option syntax are normalized into the
  * Object-based format.
+ * 确保所有的属性选项的语法都基于对象格式规范化
  */
 function normalizeProps (options) {
   var props = options.props;
@@ -1450,21 +1776,25 @@ function normalizeProps (options) {
   var res = {};
   var i, val, name;
   if (Array.isArray(props)) {
+    // 如果props是一个数组
+    // 这个分支把数组转化成对象['a','b','a-b'] -> { a:{ type: null }, b:{ type: null }, aB:{ type: null }}
     i = props.length;
     while (i--) {
       val = props[i];
-      if (typeof val === 'string') {
-        name = camelize(val);
-        res[name] = { type: null };
-      } else if (process.env.NODE_ENV !== 'production') {
+      if (typeof val === 'string') { // val必须是string类型
+        name = camelize(val); // 将连字符格式的字符串改成驼峰命名格式，'abc-abc' -> 'abcAbc'
+        res[name] = { type: null }; // 给每个属性赋值{type:null}
+      } else if (process.env.NODE_ENV !== 'production') { // 非生产环境使用的，不管
         warn('props must be strings when using array syntax.');
       }
     }
   } else if (isPlainObject(props)) {
+    // 严格判断对象，必须要是Object，像Date，Boolean等对象都不可以
+    // { a: { b: 1}, c: 2 } -> { a: {b: 1}, c:{ type: 2 } }
     for (var key in props) {
       val = props[key];
       name = camelize(key);
-      res[name] = isPlainObject(val)
+      res[name] = isPlainObject(val) // props对象的属性也必须要严格是对象，否则赋值为{type:val}
         ? val
         : { type: val };
     }
@@ -1474,10 +1804,14 @@ function normalizeProps (options) {
 
 /**
  * Normalize all injections into Object-based format
+ * 将所有注入标准化为基于对象的格式
+ * 这里把数组options.inject转换成对象
+ * 比如['a','b','c'] -> {'a':'a', 'b':'b', 'c':'c'}
+ * @param options
  */
 function normalizeInject (options) {
   var inject = options.inject;
-  if (Array.isArray(inject)) {
+  if (Array.isArray(inject)) { // 由此看来，options.inject应该是一个数组，如果不是数组，则原样不变
     var normalized = options.inject = {};
     for (var i = 0; i < inject.length; i++) {
       normalized[inject[i]] = inject[i];
@@ -1487,6 +1821,7 @@ function normalizeInject (options) {
 
 /**
  * Normalize raw function directives into object format.
+ * 将原始函数指令规范化为对象格式
  */
 function normalizeDirectives (options) {
   var dirs = options.directives;
@@ -1494,6 +1829,8 @@ function normalizeDirectives (options) {
     for (var key in dirs) {
       var def = dirs[key];
       if (typeof def === 'function') {
+        // 如果options.directives中属性的值是一个function，就替换成{ bind: [Function: ?], update: [Function: ?] }的格式
+        // 如果不是function，原样不变
         dirs[key] = { bind: def, update: def };
       }
     }
@@ -1503,46 +1840,65 @@ function normalizeDirectives (options) {
 /**
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
+ * 合并两个options到一个新对象中
+ * 核心功能在实例和继承中都可以使用
+ * @param parent
+ * @param child
+ * @param vm
+ * @returns {{}}
  */
 function mergeOptions (
   parent,
   child,
   vm
 ) {
-  if (process.env.NODE_ENV !== 'production') {
+  console.log(6,parent,child,vm);
+  if (process.env.NODE_ENV !== 'production') { // 非生产环境下的功能，暂不看，用来检查组件名是否合法
     checkComponents(child);
   }
 
-  if (typeof child === 'function') {
+  if (typeof child === 'function') { // 如果child是个方法，则child设置为child.options，暂时没看到child是方法的情况
     child = child.options;
   }
 
-  normalizeProps(child);
-  normalizeInject(child);
-  normalizeDirectives(child);
+  normalizeProps(child); // 格式化child的props
+  normalizeInject(child); // 格式化child的inject，2.2.0新增的属性，需要和provide一起使用，具体用法https://cn.vuejs.org/v2/api/#provide-inject
+  normalizeDirectives(child); // 格式化child的directives
+
   var extendsFrom = child.extends;
+
+  // https://cn.vuejs.org/v2/api/#extends
+  // 允许声明扩展另一个组件(可以是一个简单的选项对象或构造函数),而无需使用
+  // 将child的extends也加入parent扩展，父实例合并子实例的extends属性
   if (extendsFrom) {
     parent = mergeOptions(parent, extendsFrom, vm);
   }
+
+  // 将child的mixins加入parent中，父实例合并子实例的mixins属性
   if (child.mixins) {
     for (var i = 0, l = child.mixins.length; i < l; i++) {
       parent = mergeOptions(parent, child.mixins[i], vm);
     }
   }
+
   var options = {};
   var key;
-  for (key in parent) {
+  for (key in parent) { // 遍历Vue.options对象的属性
     mergeField(key);
+    // 合并父选项和子选项中相同key的值
   }
-  for (key in child) {
+  for (key in child) { // 遍历options对象的属性
     if (!hasOwn(parent, key)) {
       mergeField(key);
+      // 合并子选项中存在的而父选项中没有的key对应的值
     }
   }
   function mergeField (key) {
+    // 每个key都会对应在strats中初始化好的函数，根据key值找到对应的处理策略函数
     var strat = strats[key] || defaultStrat;
-    options[key] = strat(parent[key], child[key], vm, key);
+    options[key] = strat(parent[key], child[key], vm, key); // key值传入是为了非生产环境用的，可以忽略
   }
+  console.log(10,options);
   return options
 }
 
@@ -1874,6 +2230,7 @@ function getTagNamespace (tag) {
 
 /**
  * Query an element selector if it's not an element already.
+ * 查找一个元素选择器如果传过来的这个元素选择器不是一个元素
  */
 
 /*  */
@@ -2010,8 +2367,9 @@ var canBeLeftOpenTag = makeMap(
   'colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr,source'
 );
 
-// HTML5 tags https://html.spec.whatwg.org/multipage/indices.html#elements-3
-// Phrasing Content https://html.spec.whatwg.org/multipage/dom.html#phrasing-content
+// HTML5 tags https://html.spec.whatwg.org/multipage/indices.html#elements-3 h5标签
+// Phrasing Content https://html.spec.whatwg.org/multipage/dom.html#phrasing-content 语法内容
+// 这里表示的应该是需要闭合的标签<tr></tr>
 var isNonPhrasingTag = makeMap(
   'address,article,aside,base,blockquote,body,caption,col,colgroup,dd,' +
   'details,dialog,div,dl,dt,fieldset,figcaption,figure,footer,form,' +
@@ -2931,16 +3289,24 @@ var baseOptions = {
  */
 
 // Regular Expressions for parsing tags and attributes
+
+// 匹配一个或多个非空白字符，非"'<>/=字符，并捕获匹配到的内容，主要用于匹配属性名
 var singleAttrIdentifier = /([^\s"'<>/=]+)/;
+
+// 匹配一个=，但不捕获。
 var singleAttrAssign = /(?:=)/;
+
+// 匹配属性值
 var singleAttrValues = [
-  // attr value double quotes
+  // attr value double quotes 捕获双引号括起来的非"内容
   /"([^"]*)"+/.source,
-  // attr value, single quotes
+  // attr value, single quotes 捕获单引号括起来的非'内容
   /'([^']*)'+/.source,
-  // attr value, no quotes
+  // attr value, no quotes 捕获多个非空白字符或非"'=<>``字符的内容
   /([^\s"'=<>`]+)/.source
 ];
+
+// 把前三个整合起来，用于匹配一个完整的属性，并且允许属性名、等号、属性值之前可以有多个空白字符
 var attribute = new RegExp(
   '^\\s*' + singleAttrIdentifier.source +
   '(?:\\s*(' + singleAttrAssign.source + ')' +
@@ -2949,13 +3315,29 @@ var attribute = new RegExp(
 
 // could use https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-QName
 // but for Vue templates we can enforce a simple charset
+// 这一组匹配起始标签的标签名
+// 匹配的是以a-zA-Z_开头，然后是0或多个a-zA-Z_、-或
 var ncname = '[a-zA-Z_][\\w\\-\\.]*';
+
+// 匹配ncname开头，紧跟着一个冒号，然后又跟着一个ncname，捕获整体匹配的内容
 var qnameCapture = '((?:' + ncname + '\\:)?' + ncname + ')';
+
+// 匹配起始标签，我们的标签有字母、下划线、中划线或点组成，因为可能有命名空间，所以有了qnameCapture
 var startTagOpen = new RegExp('^<' + qnameCapture);
+
+// 匹配起始标签的结束部分，这里做了单标签的区分，单标签匹配的第二个元素是/
 var startTagClose = /^\s*(\/?)>/;
+
+// 匹配双标签的结束标签。以<开始，然后是/，然后是标签名qnameCapture，接着是0或多个非>，最后是>。其中捕获是qnameCapture进行的
 var endTag = new RegExp('^<\\/' + qnameCapture + '[^>]*>');
+
+// 匹配文档类型
 var doctype = /^<!DOCTYPE [^>]+>/i;
+
+// 匹配html注释的起始部分
 var comment = /^<!--/;
+
+// 匹配<![CDATA等内容
 var conditionalComment = /^<!\[/;
 
 var IS_REGEX_CAPTURING_BROKEN = false;
@@ -2964,9 +3346,11 @@ var IS_REGEX_CAPTURING_BROKEN = false;
 });
 
 // Special Elements (can contain anything)
+// 可以包含任何元素的特殊元素标签，这里做了一个map方法
 var isPlainTextElement = makeMap('script,style,textarea', true);
 var reCache = {};
 
+// 转义表
 var decodingMap = {
   '&lt;': '<',
   '&gt;': '>',
@@ -6512,9 +6896,19 @@ function resolveInject (inject, vm) {
 
 
 
+/**
+ * 整理获取类的options
+ * @param Ctor
+ * @returns {*}
+ */
 function resolveConstructorOptions (Ctor) {
+  console.log(3,Ctor);
   var options = Ctor.options;
+  console.log(4,options);
+  console.log(5,Ctor.super);
   if (Ctor.super) {
+    // 用来处理继承的，暂时不看，在调用Vue.extend时会生成一个子类，就会用到这里的东西了
+    // 没有继承的情况下，这个函数直接原样返回
     var superOptions = resolveConstructorOptions(Ctor.super);
     var cachedSuperOptions = Ctor.superOptions;
     if (superOptions !== cachedSuperOptions) {
@@ -6536,6 +6930,11 @@ function resolveConstructorOptions (Ctor) {
   return options
 }
 
+/**
+ * 检查options的更新
+ * @param Ctor
+ * @returns {*}
+ */
 function resolveModifiedOptions (Ctor) {
   var modified;
   var latest = Ctor.options;
@@ -6550,9 +6949,17 @@ function resolveModifiedOptions (Ctor) {
   return modified
 }
 
+/**
+ * 删除重复数据的函数
+ * @param latest
+ * @param extended
+ * @param sealed
+ * @returns {*}
+ */
 function dedupe (latest, extended, sealed) {
   // compare latest and sealed to ensure lifecycle hooks won't be duplicated
   // between merges
+  // 主要是处理生命周期回调，让回调不会直接被替换赋值，而是被逐个添加
   if (Array.isArray(latest)) {
     var res = [];
     sealed = Array.isArray(sealed) ? sealed : [sealed];

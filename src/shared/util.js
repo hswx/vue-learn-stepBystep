@@ -441,7 +441,7 @@ export function looseEqual (a: mixed, b: mixed): boolean {
     // 两个都不是对象的话就直接转string比较
     // 这里调用a,b的toString()方法转字符串，Object类型会返回[object Object]的
   } else {
-    return false //有一个是对象，另一个不是的话就直接false了
+    return false // 有一个是对象，另一个不是的话就直接false了
   }
 }
 

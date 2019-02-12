@@ -195,7 +195,7 @@ export function defineReactive (
  * @returns {any}
  */
 export function set (target: Array<any> | Object, key: any, val: any): any {
-  console.log(8,target,key,val)
+  console.log(8, target, key, val)
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     // 如果传入的target是数组，且key是数组的下标（即为非负整数）
     target.length = Math.max(target.length, key) // 取target.length, key最大的值

@@ -9,7 +9,7 @@ const replaceRE = /./g // 匹配除“\r\n”之外的任何单个字符
 const isSpecialTag = makeMap('script,style,template', true)
 // 通过makeMap方法创建一个忽略大小写的查找传入值是否是script,style或template的方法，方法源码在src/shared/util下
 
-type Attribute = { //创建一个对象类型Attribute，对象中包含string格式的name和string格式的value
+type Attribute = { // 创建一个对象类型Attribute，对象中包含string格式的name和string格式的value
   name: string,
   value: string
 };
@@ -63,7 +63,7 @@ export function parseComponent (
         }, Object.create(null))
         // 将属性数组变成一个对象，即[{key1:value1},{key2:value2}]转成{key1:value1,key2:value2}
       }
-      if (isSpecialTag(tag)) { //判断是不是script,style,template标签
+      if (isSpecialTag(tag)) { // 判断是不是script,style,template标签
         checkAttrs(currentBlock, attrs) // 检查标签的属性
         if (tag === 'style') {
           sfc.styles.push(currentBlock) // 如果是style标签就放到sfc的style数组中

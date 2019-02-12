@@ -55,7 +55,7 @@ if (process.env.NODE_ENV !== 'production') {
  * @returns {Object}
  */
 function mergeData (to: Object, from: ?Object): Object {
-  console.log(9,to,from);
+  console.log(9, to, from)
   if (!from) return to // 如果from不存在直接返回to的值
   let key, toVal, fromVal
   const keys = Object.keys(from) // 获取from对象自身可枚举的key值
@@ -89,7 +89,7 @@ export function mergeDataOrFn (
   childVal: any,
   vm?: Component
 ): ?Function {
-  console.log(8,parentVal,childVal,vm);
+  console.log(8, parentVal, childVal, vm)
   if (!vm) { // vm目前存在，还是先不管这个情况
     // in a Vue.extend merge, both should be functions
     if (!childVal) {
@@ -139,7 +139,7 @@ strats.data = function (
   childVal: any,
   vm?: Component
 ): ?Function {
-  console.log(7,parentVal,childVal,vm)
+  console.log(7, parentVal, childVal, vm)
   if (!vm) { // 如果没传入vm实例，目前会传入vm，暂时不管这个情况
     if (childVal && typeof childVal !== 'function') {
       process.env.NODE_ENV !== 'production' && warn( // 非生产环境，忽略
@@ -154,7 +154,7 @@ strats.data = function (
     return mergeDataOrFn.call(this, parentVal, childVal)
   }
 
-  return mergeDataOrFn(parentVal, childVal, vm) //传入vm实例的情况下，直接调用mergeDataOrFn方法
+  return mergeDataOrFn(parentVal, childVal, vm) // 传入vm实例的情况下，直接调用mergeDataOrFn方法
 }
 
 /**
@@ -366,7 +366,7 @@ export function mergeOptions (
   child: Object,
   vm?: Component
 ): Object {
-  console.log(6,parent,child,vm);
+  console.log(6, parent, child, vm)
   if (process.env.NODE_ENV !== 'production') { // 非生产环境下的功能，暂不看，用来检查组件名是否合法
     checkComponents(child)
   }
@@ -412,7 +412,7 @@ export function mergeOptions (
     const strat = strats[key] || defaultStrat
     options[key] = strat(parent[key], child[key], vm, key) // key值传入是为了非生产环境用的，可以忽略
   }
-  console.log(10,options);
+  console.log(10, options)
   return options
 }
 

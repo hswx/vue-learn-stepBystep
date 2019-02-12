@@ -14,9 +14,9 @@ let uid = 0 // 定义一个全局的uid，用来唯一标记vm
 
 export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
-    console.log(1,options);
+    console.log(1, options)
     const vm: Component = this // {}
-    console.log(2,vm);
+    console.log(2, vm)
     // a uid
     vm._uid = uid++
 
@@ -105,10 +105,10 @@ function initInternalComponent (vm: Component, options: InternalComponentOptions
  * @returns {*}
  */
 export function resolveConstructorOptions (Ctor: Class<Component>) {
-  console.log(3,Ctor);
+  console.log(3, Ctor)
   let options = Ctor.options
-  console.log(4,options);
-  console.log(5,Ctor.super);
+  console.log(4, options)
+  console.log(5, Ctor.super)
   if (Ctor.super) {
     // 用来处理继承的，暂时不看，在调用Vue.extend时会生成一个子类，就会用到这里的东西了
     // 没有继承的情况下，这个函数直接原样返回

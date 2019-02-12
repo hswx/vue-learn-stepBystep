@@ -189,7 +189,7 @@ function genConfig (opts) {
 }
 
 if (process.env.TARGET) {
-  module.exports = genConfig(builds[process.env.TARGET])//获取TARGET参数
+  module.exports = genConfig(builds[process.env.TARGET])// 获取TARGET参数
 } else {
   exports.getBuild = name => genConfig(builds[name])
   exports.getAllBuilds = () => Object.keys(builds).map(name => genConfig(builds[name]))

@@ -62,5 +62,4 @@ renderMixin(Vue)
 // Vue.prototype._u = resolveScopedSlots
 // Vue.prototype._g = bindObjectListeners
 
-
 export default Vue
