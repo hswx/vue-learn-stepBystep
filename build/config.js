@@ -1,10 +1,10 @@
-const path = require('path')
-const buble = require('rollup-plugin-buble')
-const alias = require('rollup-plugin-alias')
-const cjs = require('rollup-plugin-commonjs')
-const replace = require('rollup-plugin-replace')
-const node = require('rollup-plugin-node-resolve')
-const flow = require('rollup-plugin-flow-no-whitespace')
+const path = require('path') // 路径模块
+const buble = require('rollup-plugin-buble') // 将es6编译成es5，比babel快速轻量
+const alias = require('rollup-plugin-alias') // 定义模块路径的别名
+const cjs = require('rollup-plugin-commonjs') // 将commonjs模块化转换成esm模块化
+const replace = require('rollup-plugin-replace') // 打包文件时替换其中的一些变量，对其赋值
+const node = require('rollup-plugin-node-resolve') // 解析 node_modules 中的模块
+const flow = require('rollup-plugin-flow-no-whitespace') // 在rollup打包时去除flow静态类型检查的代码
 const version = process.env.VERSION || require('../package.json').version
 const weexVersion = process.env.WEEX_VERSION || require('../packages/weex-vue-framework/package.json').version
 

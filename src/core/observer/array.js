@@ -27,7 +27,7 @@ export const arrayMethods = Object.create(arrayProto) // 以原生数组的原�
   // cache original method
   // 缓存数组原本的方法
   const original = arrayProto[method]
-  def(arrayMethods, method, function mutator (...args) {
+  def(arrayMethods, method, function mutator (...args) { // 在通过数组原型创建的对象中添加相关方法，拦截掉原型中的方法
     const result = original.apply(this, args)
     const ob = this.__ob__
     let inserted

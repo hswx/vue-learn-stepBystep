@@ -1,6 +1,6 @@
-const path = require('path')
+const path = require('path') // 路径模块
 
-module.exports = {
+module.exports = { // 输出一个对象，定义一些路径的别名，用于rollup-plugin-alias解析
   vue: path.resolve(__dirname, '../src/platforms/web/entry-runtime-with-compiler'),
   compiler: path.resolve(__dirname, '../src/compiler'),
   core: path.resolve(__dirname, '../src/core'),

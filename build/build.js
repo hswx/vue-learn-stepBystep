@@ -1,10 +1,10 @@
-const fs = require('fs')
-const path = require('path')
-const zlib = require('zlib')
-const rollup = require('rollup')
-const uglify = require('uglify-js')
+const fs = require('fs') // 文件系统
+const path = require('path') // 路径模块
+const zlib = require('zlib') // 压缩模块
+const rollup = require('rollup') // j/avaScript 模块打包器
+const uglify = require('uglify-js') // js 解释器、最小化器、压缩器、美化器工具集
 
-if (!fs.existsSync('dist')) {
+if (!fs.existsSync('dist')) { // 判断dist目录是否存在，不存在的话就创建dist目录（同步）
   fs.mkdirSync('dist')
 }
 

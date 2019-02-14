@@ -827,7 +827,7 @@ function parseComponent (
         }, Object.create(null))
         // 将属性数组变成一个对象，即[{key1:value1},{key2:value2}]转成{key1:value1,key2:value2}
       };
-      if (isSpecialTag(tag)) { //判断是不是script,style,template标签
+      if (isSpecialTag(tag)) { // 判断是不是script,style,template标签
         checkAttrs(currentBlock, attrs); // 检查标签的属性
         if (tag === 'style') {
           sfc.styles.push(currentBlock); // 如果是style标签就放到sfc的style数组中
@@ -942,10 +942,10 @@ var emptyObject = Object.freeze({}); // 创建一个冻结的空对象
  */
 function def (obj, key, val, enumerable) {
   Object.defineProperty(obj, key, {
-    value: val,
-    enumerable: !!enumerable,
-    writable: true,
-    configurable: true
+    value: val, // 初始值，默认为undefined
+    enumerable: !!enumerable, // 此属性是否可以被枚举（使用for...in或Object.keys()），默认为false
+    writable: true, // 属性的值是否可以被重写，默认为false
+    configurable: true // 是否可以删除目标属性或是否可以再次修改属性的特性（writable, configurable, enumerable），默认为false
   });
 }
 
@@ -1460,27 +1460,30 @@ Dep.target = null;
 /*
  * not type checking this file because flow doesn't play well with
  * dynamically accessing methods on Array prototype
+ * 这个文件没有类型检查，因为flow不能很好的检查数组原型上的动态方法
  */
 
-var arrayProto = Array.prototype;
+var arrayProto = Array.prototype; // 获取原生Array数组的原型
 var arrayMethods = Object.create(arrayProto);[
-  'push',
-  'pop',
-  'shift',
-  'unshift',
-  'splice',
-  'sort',
-  'reverse'
+  'push', // 向数组的末尾添加一个或多个元素，并返回新的长度
+  'pop', // 删除并返回数组的最后一个元素
+  'shift', // 删除并返回数组的第一个元素
+  'unshift', // 向数组的开头添加一个或更多元素，并返回新的长度
+  'splice', // 删除元素，并向数组添加新元素
+  'sort', // 对数组的元素进行排序
+  'reverse' // 颠倒数组中元素的顺序
 ]
 .forEach(function (method) {
   // cache original method
+  // 缓存数组原本的方法
   var original = arrayProto[method];
   def(arrayMethods, method, function mutator () {
     var args = [], len = arguments.length;
     while ( len-- ) args[ len ] = arguments[ len ];
-
+ // 在通过数组原型创建的对象中添加相关方法，拦截掉原型中的方法
     var result = original.apply(this, args);
     var ob = this.__ob__;
+    console.log('kkkkkkkkkk', this, ob);
     var inserted;
     switch (method) {
       case 'push':
@@ -1676,7 +1679,7 @@ function defineReactive$$1 (
  * @returns {any}
  */
 function set (target, key, val) {
-  console.log(8,target,key,val);
+  console.log(8, target, key, val);
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     // 如果传入的target是数组，且key是数组的下标（即为非负整数）
     target.length = Math.max(target.length, key); // 取target.length, key最大的值
@@ -1761,7 +1764,7 @@ if (process.env.NODE_ENV !== 'production') {
  * @returns {Object}
  */
 function mergeData (to, from) {
-  console.log(9,to,from);
+  console.log(9, to, from);
   if (!from) { return to } // 如果from不存在直接返回to的值
   var key, toVal, fromVal;
   var keys = Object.keys(from); // 获取from对象自身可枚举的key值
@@ -1795,7 +1798,7 @@ function mergeDataOrFn (
   childVal,
   vm
 ) {
-  console.log(8,parentVal,childVal,vm);
+  console.log(8, parentVal, childVal, vm);
   if (!vm) { // vm目前存在，还是先不管这个情况
     // in a Vue.extend merge, both should be functions
     if (!childVal) {
@@ -1845,7 +1848,7 @@ strats.data = function (
   childVal,
   vm
 ) {
-  console.log(7,parentVal,childVal,vm);
+  console.log(7, parentVal, childVal, vm);
   if (!vm) { // 如果没传入vm实例，目前会传入vm，暂时不管这个情况
     if (childVal && typeof childVal !== 'function') {
       process.env.NODE_ENV !== 'production' && warn( // 非生产环境，忽略
@@ -1860,7 +1863,7 @@ strats.data = function (
     return mergeDataOrFn.call(this, parentVal, childVal)
   }
 
-  return mergeDataOrFn(parentVal, childVal, vm) //传入vm实例的情况下，直接调用mergeDataOrFn方法
+  return mergeDataOrFn(parentVal, childVal, vm) // 传入vm实例的情况下，直接调用mergeDataOrFn方法
 };
 
 /**

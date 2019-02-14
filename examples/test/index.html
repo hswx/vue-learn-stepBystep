@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../../dist/vue.js"></script>
+</head>
+<body>
+<span>Message: {{ items }}</span>
+    <script>
+      var vm = new Vue({
+        el: 'span',
+        data: {
+          items: ['a', 'b', 'c']
+        }
+      })
+      vm.items.push('m')
+    </script>
+
+</body>
+</html>
