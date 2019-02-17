@@ -19,7 +19,7 @@ const weexFactoryPlugin = { // 自定义rollup中打包weex的额外插件
   intro () { // rollup在打包好的文件的块的内部(wrapper内部)的最顶部插入一段内容
     return 'module.exports = function weexFactory (exports, renderer) {'
   },
-  outro () { // rollup在打包好的文件的块的内部(wrapper内部)的最底部插入一段内内容
+  outro () { // rollup在打包好的文件的块的内部(wrapper内部)的最底部插入一段内容
     return '}'
   }
 }
