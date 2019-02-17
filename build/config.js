@@ -5,21 +5,21 @@ const cjs = require('rollup-plugin-commonjs') // 将commonjs模块化转换成es
 const replace = require('rollup-plugin-replace') // 打包文件时替换其中的一些变量，对其赋值
 const node = require('rollup-plugin-node-resolve') // 解析 node_modules 中的模块
 const flow = require('rollup-plugin-flow-no-whitespace') // 在rollup打包时去除flow静态类型检查的代码
-const version = process.env.VERSION || require('../package.json').version
-const weexVersion = process.env.WEEX_VERSION || require('../packages/weex-vue-framework/package.json').version
+const version = process.env.VERSION || require('../package.json').version // 获取环境变量中的版本号，没有的话就取package.json中的版本号
+const weexVersion = process.env.WEEX_VERSION || require('../packages/weex-vue-framework/package.json').version // 获取weex的版本号
 
-const banner =
+const banner = // 打包后vue代码的头部声明
   '/*!\n' +
   ' * Vue.js v' + version + '\n' +
   ' * (c) 2014-' + new Date().getFullYear() + ' Evan You\n' +
   ' * Released under the MIT License.\n' +
   ' */'
 
-const weexFactoryPlugin = {
-  intro () {
+const weexFactoryPlugin = { // 自定义rollup中打包weex的额外插件
+  intro () { // rollup在打包好的文件的块的内部(wrapper内部)的最顶部插入一段内容
     return 'module.exports = function weexFactory (exports, renderer) {'
   },
-  outro () {
+  outro () { // rollup在打包好的文件的块的内部(wrapper内部)的最底部插入一段内内容
     return '}'
   }
 }
